@@ -4,14 +4,28 @@
 namespace App\Http\Controllers\Admin;
 
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DonationPublicController;
 use Illuminate\Support\Facades\Route;
 
 
 
 
-Route::get('/', function () {
+// =============================================
+// Public Routes (Frontend Donasi)
+// =============================================
+Route::get('/', [HomeController::class, 'index'])->name('public.home');
+Route::get('/campaigns', [HomeController::class, 'campaigns'])->name('public.campaigns');
+Route::get('/campaign/{slug}', [DonationPublicController::class, 'show'])->name('public.campaign.show');
+Route::post('/campaign/{slug}/donate', [DonationPublicController::class, 'donate'])->name('public.donation.store');
+Route::get('/donation/success/{invoice}', [DonationPublicController::class, 'success'])->name('public.donation.success');
+
+// =============================================
+// Admin Login Route
+// =============================================
+Route::get('/login', function () {
     return view('auth.login');
-});
+})->name('login.page');
 
 
 /**
