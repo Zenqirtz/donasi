@@ -46,10 +46,21 @@
                     </div>
                     <div class="flex items-center justify-between px-5 py-3.5">
                         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</span>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            Menunggu Konfirmasi
-                        </span>
+                        @if($donation->status == 'success')
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Berhasil / Terverifikasi
+                            </span>
+                        @elseif($donation->status == 'pending')
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                Menunggu Konfirmasi
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
+                                {{ ucfirst($donation->status) }}
+                            </span>
+                        @endif
                     </div>
                     @if($donation->pray)
                     <div class="px-5 py-3.5">
@@ -59,12 +70,21 @@
                     @endif
                 </div>
 
+                @if($donation->status == 'success')
+                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-sm text-emerald-800">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="leading-relaxed">Donasi Anda telah terverifikasi dan resmi ditambahkan ke target campaign ini. Terima kasih atas partisipasi dan kepedulian Anda!</p>
+                    </div>
+                </div>
+                @else
                 <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-800">
                     <div class="flex items-start gap-2.5">
                         <svg class="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <p class="leading-relaxed">Donasi Anda sedang dalam proses verifikasi. Setelah dikonfirmasi, nominal akan ditambahkan ke campaign ini.</p>
+                        <p class="leading-relaxed">Donasi Anda sedang dalam proses verifikasi. Setelah dikonfirmasi oleh pengelola, nominal akan ditambahkan ke campaign ini.</p>
                     </div>
                 </div>
+                @endif
 
                 <div class="flex flex-col sm:flex-row gap-3">
                     <a href="{{ route('public.campaign.show', $donation->campaign->slug) }}"

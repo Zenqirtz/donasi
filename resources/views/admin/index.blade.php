@@ -133,6 +133,7 @@
                             <th class="px-6 py-3.5">Nominal</th>
                             <th class="px-6 py-3.5">Tanggal</th>
                             <th class="px-6 py-3.5 text-center">Status</th>
+                            <th class="px-6 py-3.5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
@@ -168,10 +169,29 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($donation->status == 'pending')
+                                        <form action="{{ route('admin.donation.status', $donation->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Konfirmasi pembayaran donasi ini menjadi Berhasil (Success)?');">
+                                            @csrf
+                                            <input type="hidden" name="status" value="success">
+                                            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition active:scale-95">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                Konfirmasi
+                                            </button>
+                                        </form>
+                                    @elseif($donation->status == 'success')
+                                        <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold">
+                                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            Tervalidasi
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-slate-400">-</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-10 text-center text-slate-400">
+                                <td colspan="7" class="px-6 py-10 text-center text-slate-400">
                                     <svg class="mx-auto h-10 w-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
                                     Belum ada transaksi donasi yang tercatat
                                 </td>
