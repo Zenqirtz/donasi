@@ -1,56 +1,156 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Platform donasi online terpercaya. Bersama kita bisa membuat perubahan nyata.">
-    <title>{{ $title ?? 'Peduli Kita - Platform Donasi Online' }}</title>
-    @vite('resources/css/app.css')
+    <meta name="description" content="Platform donasi online terpercaya, transparan, dan amanah untuk membantu sesama yang membutuhkan.">
+    <title>{{ $title ?? 'Peduli Kita - Platform Donasi Online Terpercaya' }}</title>
+
+    <!-- Tailwind CDN with custom config (Guarantees modern styles even if local Vite dev is inactive) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Vite Bundled Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .gradient-hero { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); }
-        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
-        .progress-bar { transition: width 1.2s ease-in-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in-up { animation: fadeInUp 0.6s ease forwards; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .gradient-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 35%, #4338ca 70%, #4f46e5 100%);
+        }
+        .gradient-mesh {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+        }
+        .progress-bar-glow {
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+        }
+        /* Fallback for line-clamp */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
     </style>
     @stack('styles')
 </head>
-<body class="bg-slate-50 antialiased text-slate-800">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
 
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+    <!-- Top Notice Bar -->
+    <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white text-xs py-2 px-4 text-center font-medium border-b border-indigo-700/50">
+        <span class="inline-flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Platform Donasi Resmi & Transparan &bull; Setiap rupiah disalurkan langsung kepada yang berhak
+        </span>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="{{ route('public.home') }}" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <a href="{{ route('public.home') }}" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition duration-300">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                         </svg>
                     </div>
-                    <span class="text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Peduli Kita</span>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xl font-extrabold bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">PEDULI KITA</span>
+                            <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 rounded-md border border-indigo-200/60">ID</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium tracking-wide">Platform Donasi Online</p>
+                    </div>
                 </a>
 
-                <!-- Nav Links Desktop -->
-                <div class="hidden md:flex items-center gap-7">
-                    <a href="{{ route('public.home') }}" class="text-sm font-semibold {{ request()->routeIs('public.home') ? 'text-indigo-600' : 'text-slate-600 hover:text-indigo-600' }} transition">Beranda</a>
-                    <a href="{{ route('public.campaigns') }}" class="text-sm font-semibold {{ request()->routeIs('public.campaigns') ? 'text-indigo-600' : 'text-slate-600 hover:text-indigo-600' }} transition">Campaign</a>
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="{{ route('public.home') }}" 
+                       class="text-sm font-semibold transition {{ request()->routeIs('public.home') ? 'text-indigo-600 font-bold' : 'text-slate-600 hover:text-indigo-600' }}">
+                        Beranda
+                    </a>
+                    <a href="{{ route('public.campaigns') }}" 
+                       class="text-sm font-semibold transition {{ request()->routeIs('public.campaigns*') ? 'text-indigo-600 font-bold' : 'text-slate-600 hover:text-indigo-600' }}">
+                        Semua Campaign
+                    </a>
+                    <a href="{{ route('public.home') }}#cara-donasi" 
+                       class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">
+                        Cara Donasi
+                    </a>
+                </nav>
+
+                <!-- Actions -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="{{ route('admin.dashboard.index') }}" 
+                       class="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Panel Admin
+                    </a>
+                    <a href="{{ route('public.campaigns') }}" 
+                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/25 transition active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        Donasi Sekarang
+                    </a>
                 </div>
 
-                <!-- CTA Button -->
-                <a href="{{ route('public.campaigns') }}" class="hidden md:inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold rounded-xl hover:opacity-90 transition shadow-md shadow-indigo-500/25">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    Donasi Sekarang
-                </a>
-
-                <!-- Mobile Menu -->
-                <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+                <!-- Mobile Hamburger Button -->
+                <button id="mobileMenuBtn" type="button" class="md:hidden p-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -58,67 +158,125 @@
             </div>
 
             <!-- Mobile Menu Dropdown -->
-            <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-slate-100 pt-4 space-y-2">
-                <a href="{{ route('public.home') }}" class="block px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition">Beranda</a>
-                <a href="{{ route('public.campaigns') }}" class="block px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition">Campaign</a>
-                <a href="{{ route('public.campaigns') }}" class="block px-3 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">Donasi Sekarang</a>
+            <div id="mobileMenu" class="hidden md:hidden pb-5 pt-3 border-t border-slate-100 space-y-2">
+                <a href="{{ route('public.home') }}" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition">
+                    Beranda
+                </a>
+                <a href="{{ route('public.campaigns') }}" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition">
+                    Semua Campaign
+                </a>
+                <a href="{{ route('public.home') }}#cara-donasi" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition">
+                    Cara Donasi
+                </a>
+                <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
+                    <a href="{{ route('public.campaigns') }}" class="w-full text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-md">
+                        Donasi Sekarang
+                    </a>
+                    <a href="{{ route('admin.dashboard.index') }}" class="w-full text-center px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">
+                        Masuk Panel Admin
+                    </a>
+                </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Flash Messages -->
-    @if(session()->has('success'))
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm font-medium">
-            <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            {{ session('success') }}
+    <!-- Main Content Area -->
+    <main class="flex-1">
+        @if(session()->has('success'))
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-sm font-semibold shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>{{ session('success') }}</div>
+            </div>
         </div>
-    </div>
-    @endif
+        @endif
 
-    <!-- Content -->
-    @yield('content')
+        @if(session()->has('error'))
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="flex items-center gap-3 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-sm font-semibold shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </div>
+                <div>{{ session('error') }}</div>
+            </div>
+        </div>
+        @endif
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        @yield('content')
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="bg-slate-950 text-slate-400 mt-28 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <!-- Column 1: Brand Info -->
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                             </svg>
                         </div>
-                        <span class="text-lg font-bold text-white">Peduli Kita</span>
+                        <span class="text-xl font-extrabold text-white tracking-tight">PEDULI KITA</span>
                     </div>
-                    <p class="text-sm leading-relaxed">Platform donasi online terpercaya. Bersama kita bisa membuat perubahan nyata untuk sesama.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-md">
+                        Platform penggalangan dana dan donasi online yang aman, cepat, dan transparan. Menghubungkan orang baik dengan sesama yang membutuhkan bantuan darurat di seluruh pelosok Indonesia.
+                    </p>
+                    <div class="flex items-center gap-4 text-xs text-slate-500 pt-2">
+                        <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 100% Transparan</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Terdaftar Resmi</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Laporan Berkala</span>
+                    </div>
                 </div>
+
+                <!-- Column 2: Quick Links -->
                 <div>
-                    <h4 class="font-semibold text-white mb-4">Tautan Cepat</h4>
-                    <ul class="space-y-2 text-sm">
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Navigasi Utama</h4>
+                    <ul class="space-y-2.5 text-sm">
                         <li><a href="{{ route('public.home') }}" class="hover:text-indigo-400 transition">Beranda</a></li>
                         <li><a href="{{ route('public.campaigns') }}" class="hover:text-indigo-400 transition">Semua Campaign</a></li>
+                        <li><a href="{{ route('public.home') }}#cara-donasi" class="hover:text-indigo-400 transition">Cara Berdonasi</a></li>
+                        <li><a href="{{ route('admin.dashboard.index') }}" class="hover:text-indigo-400 transition">Masuk Admin</a></li>
                     </ul>
                 </div>
+
+                <!-- Column 3: Kontak & Dukungan -->
                 <div>
-                    <h4 class="font-semibold text-white mb-4">Kontak</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li class="flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>info@pedulikita.id</li>
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Pusat Bantuan</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>dukungan@pedulikita.id</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Jakarta, Indonesia</span>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-slate-800 mt-8 pt-6 text-center text-xs text-slate-500">
-                &copy; {{ date('Y') }} Peduli Kita. Semua hak dilindungi.
+
+            <div class="border-t border-slate-900 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>&copy; {{ date('Y') }} Peduli Kita. Platform Donasi Online. Hak Cipta Dilindungi.</p>
+                <div class="flex items-center gap-6">
+                    <span class="hover:text-slate-400">Kebijakan Privasi</span>
+                    <span class="hover:text-slate-400">Syarat & Ketentuan</span>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Mobile Menu Script -->
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        });
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const menu = document.getElementById('mobileMenu');
+        if (menuBtn && menu) {
+            menuBtn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
     </script>
     @stack('scripts')
 </body>

@@ -17,8 +17,8 @@
         {{-- LEFT: Campaign Info --}}
         <div class="lg:col-span-2 space-y-6">
             {{-- Campaign Image --}}
-            <div class="rounded-2xl overflow-hidden shadow-lg aspect-video">
-                <img src="{{ $campaign->image }}" alt="{{ $campaign->title }}" class="w-full h-full object-cover">
+            <div class="rounded-3xl overflow-hidden shadow-lg aspect-video bg-slate-100">
+                <img src="{{ $campaign->image }}" alt="{{ $campaign->title }}" onerror="this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&auto=format&fit=crop&q=80'" class="w-full h-full object-cover">
             </div>
 
             {{-- Title & Category --}}
