@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('target_donation');
+            $table->unsignedBigInteger('current_donation')->default(0);
             $table->dateTime('max_date');
             $table->text('description');
             $table->string('image')->nullable();
