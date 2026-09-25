@@ -6,7 +6,6 @@ use App\Models\Campaign;
 use App\Models\Donation;
 use App\Models\Donatur;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class DonationPublicController extends Controller
@@ -54,7 +53,6 @@ class DonationPublicController extends Controller
             ['email' => $request->email],
             [
                 'name'     => $request->name,
-                'password' => Hash::make(Str::random(12)),
             ]
         );
 
