@@ -38,12 +38,12 @@ class Donation extends Model
         });
 
         static::updated(function ($donation) {
-            // Update campaign current_donation when status changed to success
-            if ($donation->isDirty('status')) {
-                if ($donation->status === 'success') {
-                    $donation->campaign->increment('current_donation', $donation->amount);
-                } elseif ($donation->getOriginal('status') === 'success') {
-                    $donation->campaign->decrement('current_donation', $donation->amount);
+            if ($donation->wasChanged('status')) {
+                $original = $donation->getOriginal('status');
+                if ($donation->status === 'success' && $original !== 'success') {
+                    $donation->campaign()->increment('current_donation', $donation->amount);
+                } elseif ($original === 'success' && $donation->status !== 'success') {
+                    $donation->campaign()->decrement('current_donation', $donation->amount);
                 }
             }
         });
