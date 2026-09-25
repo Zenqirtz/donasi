@@ -124,7 +124,7 @@
                             <div class="grid grid-cols-3 gap-2 mb-3">
                                 @foreach([10000, 25000, 50000, 100000, 250000, 500000] as $nominal)
                                 <button type="button" onclick="setAmount({{ $nominal }})"
-                                    class="quick-amount py-2 px-1 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                                    class="quick-amount py-2 px-1 text-xs font-bold rounded-lg border border-slate-300 text-slate-800 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 transition bg-white">
                                     {{ number_format($nominal, 0, '', '.') }}
                                 </button>
                                 @endforeach

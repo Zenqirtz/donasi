@@ -79,8 +79,41 @@ class DonationPublicController extends Controller
             'snap_token'  => null,
         ]);
 
+        return redirect()->route('public.donation.payment', $donation->invoice);
+    }
+
+    /**
+     * Halaman pembayaran / QRIS
+     */
+    public function payment($invoice)
+    {
+        $donation = Donation::with(['campaign', 'donatur'])
+            ->where('invoice', $invoice)
+            ->firstOrFail();
+
+        // Jika sudah success, langsung ke success page
+        if ($donation->status === 'success') {
+            return redirect()->route('public.donation.success', $donation->invoice);
+        }
+
+        $qrisPayload = '00020101021226580016ID.CO.PEDULIKITA.WWW0118' . $donation->invoice . '520454995303360540' . strlen($donation->amount) . $donation->amount . '5802ID5910PEDULI KITA6007JAKARTA62070703A016304';
+
+        return view('public.donation-payment', compact('donation', 'qrisPayload'));
+    }
+
+    /**
+     * Konfirmasi pembayaran donasi (simulasi)
+     */
+    public function confirm($invoice)
+    {
+        $donation = Donation::where('invoice', $invoice)->firstOrFail();
+
+        // Ubah status jadi success
+        $donation->status = 'success';
+        $donation->save();
+
         return redirect()->route('public.donation.success', $donation->invoice)
-            ->with('success', 'Terima kasih! Donasi Anda sedang diproses.');
+            ->with('success', 'Alhamdulillah! Pembayaran donasi Anda telah berhasil dikonfirmasi.');
     }
 
     /**

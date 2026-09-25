@@ -18,6 +18,8 @@ Route::get('/', [HomeController::class, 'index'])->name('public.home');
 Route::get('/campaigns', [HomeController::class, 'campaigns'])->name('public.campaigns');
 Route::get('/campaign/{slug}', [DonationPublicController::class, 'show'])->name('public.campaign.show');
 Route::post('/campaign/{slug}/donate', [DonationPublicController::class, 'donate'])->name('public.donation.store');
+Route::get('/donation/payment/{invoice}', [DonationPublicController::class, 'payment'])->name('public.donation.payment');
+Route::post('/donation/confirm/{invoice}', [DonationPublicController::class, 'confirm'])->name('public.donation.confirm');
 Route::get('/donation/success/{invoice}', [DonationPublicController::class, 'success'])->name('public.donation.success');
 
 // =============================================
