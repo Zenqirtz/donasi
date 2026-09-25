@@ -22,7 +22,32 @@ class Donation extends Model
 
     protected $casts = [
         'paid_at' => 'datetime',
+        'amount' => 'integer',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function ($donation) {
+            // Auto set paid_at when status becomes success
+            if ($donation->isDirty('status') && $donation->status === 'success' && !$donation->paid_at) {
+                $donation->paid_at = now();
+            }
+        });
+
+        static::updated(function ($donation) {
+            // Update campaign current_donation when status changed to success
+            if ($donation->isDirty('status')) {
+                if ($donation->status === 'success') {
+                    $donation->campaign->increment('current_donation', $donation->amount);
+                } elseif ($donation->getOriginal('status') === 'success') {
+                    $donation->campaign->decrement('current_donation', $donation->amount);
+                }
+            }
+        });
+    }
 
     /**
      * campaign
