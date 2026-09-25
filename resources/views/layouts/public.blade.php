@@ -66,10 +66,40 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
         }
-        .progress-bar-glow {
-            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
-        }
-        /* Fallback for line-clamp */
+    .progress-bar-glow {
+        box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+    }
+    
+    /* SweetAlert2 button visibility override */
+    .swal2-popup .swal2-actions {
+        display: flex !important;
+        gap: 12px !important;
+    }
+    .swal2-popup .swal2-confirm,
+    .swal2-popup .swal2-cancel {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        line-height: 1 !important;
+        border-radius: 12px !important;
+        border: 0 !important;
+        min-width: 100px !important;
+        text-shadow: none !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+    }
+    .swal2-popup .swal2-confirm {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+        color: white !important;
+    }
+    .swal2-popup .swal2-cancel {
+        background-color: #f1f5f9 !important;
+        color: #64748b !important;
+        border: 2px solid #e2e8f0 !important;
+    }
+    /* Fallback for line-clamp */
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
