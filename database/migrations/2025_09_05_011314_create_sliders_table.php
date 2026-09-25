@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('image');
             $table->string('link')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->integer('order')->default(0);
+            $table->integer('order')->default(0)->unique();
             $table->timestamps();
 
         });
