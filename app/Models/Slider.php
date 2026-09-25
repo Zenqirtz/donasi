@@ -16,7 +16,11 @@ class Slider extends Model
      * @var array
      */
     protected $fillable = [
-        'image', 'link'
+        'image', 'link', 'is_active', 'order'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
      /**

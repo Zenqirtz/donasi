@@ -17,7 +17,11 @@ class Donation extends Model
      * @var array
      */
     protected $fillable = [
-        'invoice', 'campaign_id', 'donatur_id', 'amount', 'pray', 'status', 'snap_token'
+        'invoice', 'campaign_id', 'donatur_id', 'amount', 'pray', 'status', 'snap_token', 'paid_at'
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
     ];
 
     /**
