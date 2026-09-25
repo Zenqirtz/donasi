@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('donations', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice');
-            $table->unsignedInteger('campaign_id');
-            $table->unsignedInteger('donatur_id');
-            $table->bigInteger('amount');
+            $table->string('invoice')->unique();
+            $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('donatur_id')->constrained('donaturs')->cascadeOnDelete();
+            $table->unsignedBigInteger('amount');
             $table->text('pray')->nullable();
             $table->string('snap_token')->nullable();
-            $table->enum('status', array('pending', 'success', 'expired', 'failed'));
+            $table->enum('status', array('pending', 'success', 'expired', 'failed'))->index();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
 
+            $table->index(['campaign_id', 'status']);
         });
     }
 

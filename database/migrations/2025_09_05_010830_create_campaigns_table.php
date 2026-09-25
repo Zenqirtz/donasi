@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('slug');
-            $table->unsignedInteger('category_id');
-            $table->bigInteger('target_donation');
-            $table->date('max_date');
+            $table->string('slug')->unique();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('target_donation');
+            $table->dateTime('max_date');
             $table->text('description');
-            $table->string('image');
-            $table->unsignedInteger('user_id');
+            $table->string('image')->nullable();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

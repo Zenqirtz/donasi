@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('sliders', function (Blueprint $table) {
             $table->id();
             $table->string('image');
-            $table->string('link');
+            $table->string('link')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('order')->default(0);
             $table->timestamps();
 
         });
