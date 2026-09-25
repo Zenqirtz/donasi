@@ -133,13 +133,6 @@
 
                 <!-- Actions -->
                 <div class="hidden md:flex items-center gap-3">
-                    <a href="{{ route('admin.dashboard.index') }}" 
-                       class="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-100 rounded-xl transition inline-flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Panel Admin
-                    </a>
                     <a href="{{ route('public.campaigns') }}" 
                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/25 transition active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,9 +164,6 @@
                 <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
                     <a href="{{ route('public.campaigns') }}" class="w-full text-center px-4 py-3 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-md">
                         Donasi Sekarang
-                    </a>
-                    <a href="{{ route('admin.dashboard.index') }}" class="w-full text-center px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl">
-                        Masuk Panel Admin
                     </a>
                 </div>
             </div>
