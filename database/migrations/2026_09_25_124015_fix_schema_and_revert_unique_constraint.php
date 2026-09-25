@@ -49,8 +49,21 @@ return new class extends Migration
                 $table->boolean('is_active')->default(true)->after('link');
             }
             if (!Schema::hasColumn('sliders', 'order')) {
-                $table->integer('order')->default(0)->unique()->after('is_active');
+                $table->integer('order')->default(0)->after('is_active');
             }
+        });
+
+        // Assign unique order values to existing sliders
+        $sliders = DB::table('sliders')->orderBy('id')->get();
+        foreach ($sliders as $index => $slider) {
+            DB::table('sliders')
+                ->where('id', $slider->id)
+                ->update(['order' => $index + 1]);
+        }
+
+        // Now add unique constraint
+        Schema::table('sliders', function (Blueprint $table) {
+            $table->unique('order');
         });
 
         // Backfill current_donation in campaigns table from existing successful donations
