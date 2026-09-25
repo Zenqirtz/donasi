@@ -16,7 +16,13 @@ class Campaign extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'slug', 'category_id', 'target_donation', 'max_date', 'description', 'image', 'user_id',
+        'title', 'slug', 'category_id', 'target_donation', 'current_donation', 'max_date', 'description', 'image', 'user_id',
+    ];
+
+    protected $casts = [
+        'target_donation' => 'integer',
+        'current_donation' => 'integer',
+        'max_date' => 'datetime',
     ];
 
     /**
@@ -56,7 +62,17 @@ class Campaign extends Model
      */
     public function sumDonation()
     {
-        return $this->donations()?->where('status', 'success')->sum('amount') ?? 0;
+        return $this->current_donation ?? 0;
+    }
+
+    /**
+     * Check if campaign has expired
+     * 
+     * @return bool
+     */
+    public function isExpired()
+    {
+        return $this->max_date->isPast();
     }
 
     /**
