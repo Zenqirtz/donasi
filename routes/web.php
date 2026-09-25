@@ -25,7 +25,7 @@ Route::get('/donation/success/{invoice}', [DonationPublicController::class, 'suc
 // =============================================
 Route::get('/login', function () {
     return view('auth.login');
-})->name('login.page');
+})->name('login');
 
 
 /**
