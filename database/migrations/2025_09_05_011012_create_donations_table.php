@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['campaign_id', 'status']);
+            $table->unique(['donatur_id', 'campaign_id']);
         });
     }
 
