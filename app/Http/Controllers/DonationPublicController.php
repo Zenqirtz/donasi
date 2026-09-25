@@ -41,6 +41,10 @@ class DonationPublicController extends Controller
     {
         $campaign = Campaign::where('slug', $slug)->firstOrFail();
 
+        if ($campaign->isExpired()) {
+            return back()->withErrors(['campaign' => 'Donasi sudah ditutup.']);
+        }
+
         $request->validate([
             'name'   => 'required|string|max:255',
             'email'  => 'required|email',
