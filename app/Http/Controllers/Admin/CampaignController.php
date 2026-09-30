@@ -1,192 +1,162 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
-
-use App\Models\Campaign;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Campaign;
 use App\Models\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Str;
 
 class CampaignController extends Controller
 {
     /**
      * index
-     *
-     * @return void
      */
     public function index()
     {
-        $campaigns = Campaign::latest()->when(request()->q, function($campaigns) {
-            $campaigns = $campaigns->where('title', 'like', '%'. request()->q . '%');
-        })->paginate(10);
-
+        $campaigns = Campaign::with('category')
+            ->when(request()->filled('q'), function ($query) {
+                $query->where('title', 'like', '%'.escapeLike(request()->q).'%');
+            })
+            ->latest()
+            ->paginate(10);
 
         return view('admin.campaign.index', compact('campaigns'));
     }
-    
+
     /**
      * create
-     *
-     * @return void
      */
     public function create()
     {
         $categories = Category::latest()->get();
+
         return view('admin.campaign.create', compact('categories'));
     }
-    
+
     /**
      * store
-     *
-     * @param  mixed $request
-     * @return void
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'image'             => 'required|image|mimes:png,jpg,jpeg',
-            'title'             => 'required',
-            'category_id'       => 'required',
-            'target_donation'   => 'required|numeric',
-            'max_date'          => 'required',
-            'description'       => 'required'
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:png,jpg,jpeg|max:2000',
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'target_donation' => 'required|numeric|min:1',
+            'max_date' => 'required|date|after:today',
+            'description' => 'required|string',
         ]);
 
-
-        //upload image
         $image = $request->file('image');
         $image->storeAs('public/campaigns', $image->hashName());
 
-
         $campaign = Campaign::create([
-            'title'             => $request->title,
-            'slug'              => Str::slug($request->title, '-'),
-            'category_id'       => $request->category_id,
-            'target_donation'   => $request->target_donation,
-            'max_date'          => $request->max_date,
-            'description'       => $request->description,
-            'user_id'           => auth()->user()->id,
-            'image'             => $image->hashName()
+            'title' => $validated['title'],
+            'slug' => $this->uniqueSlug($validated['title']),
+            'category_id' => $validated['category_id'],
+            'target_donation' => $validated['target_donation'],
+            'max_date' => $validated['max_date'],
+            'description' => $validated['description'],
+            'user_id' => auth()->id(),
+            'image' => $image->hashName(),
         ]);
 
-
-        if($campaign){
-            //redirect dengan pesan sukses
-            return redirect()->route('admin.campaign.index')->with(['success' => 'Data Berhasil Disimpan!']);
-        }else{
-            //redirect dengan pesan error
-            return redirect()->route('admin.campaign.index')->with(['error' => 'Data Gagal Disimpan!']);
-        }
+        return redirect()->route('admin.campaign.index')
+            ->with($campaign ? ['success' => 'Data Berhasil Disimpan!'] : ['error' => 'Data Gagal Disimpan!']);
     }
-    
+
     /**
      * edit
-     *
-     * @param  mixed $campaign
-     * @return void
      */
     public function edit(Campaign $campaign)
     {
         $categories = Category::latest()->get();
+
         return view('admin.campaign.edit', compact('campaign', 'categories'));
     }
-    
+
     /**
      * update
-     *
-     * @param  mixed $request
-     * @param  mixed $campaign
-     * @return void
      */
     public function update(Request $request, Campaign $campaign)
     {
-        $this->validate($request, [
-            'title'             => 'required',
-            'category_id'       => 'required',
-            'target_donation'   => 'required|numeric',
-            'max_date'          => 'required',
-            'description'       => 'required'
-        ]); 
+        $validated = $request->validate([
+            'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2000',
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'target_donation' => 'required|numeric|min:1',
+            'max_date' => 'required|date',
+            'description' => 'required|string',
+        ]);
 
+        // Target tidak boleh diturunkan di bawah donasi yang sudah terkumpul.
+        if ((int) $validated['target_donation'] < (int) $campaign->current_donation) {
+            return back()->withErrors([
+                'target_donation' => 'Target donasi tidak boleh lebih kecil dari donasi yang sudah terkumpul ('
+                    .moneyFormat($campaign->current_donation).').',
+            ])->withInput();
+        }
 
-        //check jika image kosong
-        if($request->file('image') == '') {
-            
-            //update data tanpa image
-            $campaign = Campaign::findOrFail($campaign->id);
-            $campaign->update([
-                'title'             => $request->title,
-                'slug'              => Str::slug($request->title, '-'),
-                'category_id'       => $request->category_id,
-                'target_donation'   => $request->target_donation,
-                'max_date'          => $request->max_date,
-                'description'       => $request->description,
-                'user_id'           => auth()->user()->id,
-            ]);
+        $attributes = [
+            'title' => $validated['title'],
+            'slug' => $this->uniqueSlug($validated['title'], $campaign->id),
+            'category_id' => $validated['category_id'],
+            'target_donation' => $validated['target_donation'],
+            'max_date' => $validated['max_date'],
+            'description' => $validated['description'],
+            'user_id' => auth()->id(),
+        ];
 
+        if ($request->hasFile('image')) {
+            Storage::disk('local')->delete('public/campaigns/'.basename($campaign->getRawOriginal('image')));
 
-        } else {
-
-
-            //hapus image lama
-            Storage::disk('local')->delete('public/campaigns/'.basename($campaign->image));
-
-
-            //upload image baru
             $image = $request->file('image');
             $image->storeAs('public/campaigns', $image->hashName());
 
-
-            //update dengan image baru
-            $campaign = Campaign::findOrFail($campaign->id);
-            $campaign->update([
-                'title'             => $request->title,
-                'slug'              => Str::slug($request->title, '-'),
-                'category_id'       => $request->category_id,
-                'target_donation'   => $request->target_donation,
-                'max_date'          => $request->max_date,
-                'description'       => $request->description,
-                'user_id'           => auth()->user()->id,
-                'image'             => $image->hashName()
-            ]);
+            $attributes['image'] = $image->hashName();
         }
 
+        $campaign->update($attributes);
 
-        if($campaign){
-            //redirect dengan pesan sukses
-            return redirect()->route('admin.campaign.index')->with(['success' => 'Data Berhasil Diupdate!']);
-        }else{
-            //redirect dengan pesan error
-            return redirect()->route('admin.campaign.index')->with(['error' => 'Data Gagal Diupdate!']);
-        }
+        return redirect()->route('admin.campaign.index')
+            ->with(['success' => 'Data Berhasil Diupdate!']);
     }
-    
+
     /**
      * destroy
-     *
-     * @param  mixed $id
-     * @return void
      */
     public function destroy($id)
     {
         $campaign = Campaign::findOrFail($id);
-        Storage::disk('local')->delete('public/campaigns/'.basename($campaign->image));
+
+        Storage::disk('local')->delete('public/campaigns/'.basename($campaign->getRawOriginal('image')));
         $campaign->delete();
 
+        return response()->json([
+            'status' => 'success',
+        ]);
+    }
 
-        if($campaign){
-            return response()->json([
-                'status' => 'success'
-            ]);
-        }else{
-            return response()->json([
-                'status' => 'error'
-            ]);
+    /**
+     * Slug unik dari judul, ditambahkan sufiks bila slug sudah dipakai.
+     */
+    protected function uniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($title, '-') ?: 'campaign';
+        $slug = $base;
+        $suffix = 1;
+
+        while (Campaign::withTrashed()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
+            $slug = $base.'-'.(++$suffix);
         }
+
+        return $slug;
     }
 }
