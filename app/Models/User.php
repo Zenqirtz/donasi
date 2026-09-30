@@ -24,7 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar'
+        'avatar',
+        'is_admin',
     ];
 
     /**
@@ -33,13 +34,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-    'password',
-    'remember_token',
-    'two_factor_secret',
-    'two_factor_recovery_codes',
-    'two_factor_confirmed_at'
-];
-
+        'password',
+        'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -48,7 +48,16 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
+
+    /**
+     * Determine whether the user may access the admin panel.
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
 
     /**
      * campaigns
