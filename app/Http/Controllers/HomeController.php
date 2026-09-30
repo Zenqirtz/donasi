@@ -16,9 +16,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $sliders   = Slider::latest()->get();
-        $campaigns = Campaign::with(['category', 'donations'])->latest()->take(6)->get();
-        $totalDonasi  = Donation::where('status', 'success')->sum('amount');
+        $sliders = Slider::where('is_active', true)->orderBy('order')->get();
+        $campaigns = Campaign::with('category')->latest()->take(6)->get();
+        $totalDonasi = Donation::where('status', 'success')->sum('amount');
         $totalDonatur = Donatur::count();
         $totalCampaign = Campaign::count();
 
@@ -31,14 +31,15 @@ class HomeController extends Controller
     public function campaigns(Request $request)
     {
         $categories = Category::all();
-        $query = Campaign::with(['category', 'donations']);
+        $query = Campaign::with('category');
 
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $search = escapeLike($request->search);
+            $query->where('title', 'like', '%'.$search.'%');
         }
 
         $campaigns = $query->latest()->paginate(9);
