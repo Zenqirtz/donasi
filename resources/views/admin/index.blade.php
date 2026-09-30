@@ -152,7 +152,7 @@
                                     {{ moneyFormat($donation->amount) }}
                                 </td>
                                 <td class="px-6 py-4 text-xs text-slate-500">
-                                    {{ $donation->created_at }}
+                                    {{ $donation->tanggal }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     @if($donation->status == 'success')

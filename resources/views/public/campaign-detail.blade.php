@@ -74,7 +74,7 @@
                         </div>
                         <div class="text-right shrink-0">
                             <p class="text-sm font-extrabold text-emerald-600">{{ moneyFormat($don->amount) }}</p>
-                            <p class="text-[10px] text-slate-400">{{ $don->created_at }}</p>
+                            <p class="text-[10px] text-slate-400">{{ $don->tanggal }}</p>
                         </div>
                     </div>
                     @endforeach
