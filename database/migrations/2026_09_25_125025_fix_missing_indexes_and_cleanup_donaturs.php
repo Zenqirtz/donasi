@@ -8,39 +8,84 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * Migration ini idempotent karena pernah diterapkan langsung ke live DB
+     * (lihat commit 999dd68), jadi setiap perubahan dicek dulu sebelum dieksekusi.
      */
     public function up(): void
     {
-        // 1. Donations: add missing unique and indexes
+        $this->ensureDonationIndexes();
+        $this->dropDonaturLegacyColumns();
+    }
+
+    /**
+     * Pastikan index yang dibutuhkan donations ada. Kolom sudah dibuat di
+     * 2025_09_05_011012_create_donations_table.php, migration ini hanya
+     * menutup kemungkinan live DB dibuat tanpa index tersebut.
+     */
+    protected function ensureDonationIndexes(): void
+    {
         Schema::table('donations', function (Blueprint $table) {
-            // Add unique index to invoice
-            $table->unique('invoice');
-            
-            // Add index to status
-            $table->index('status');
-            
-            // Add composite index for performance
-            $table->index(['campaign_id', 'status']);
-        });
+            if (! $this->hasIndex('donations', 'donations_invoice_unique')) {
+                $table->unique('invoice');
+            }
 
-        // 2. Donaturs: cleanup legacy columns (password, email_verified_at, remember_token)
-        Schema::table('donaturs', function (Blueprint $table) {
-            $table->dropColumn(['email_verified_at', 'password', 'remember_token']);
-        });
+            if (! $this->hasIndex('donations', 'donations_status_index')) {
+                $table->index('status');
+            }
 
-        // 3. Foreign Keys: ensure FK constraints are set properly for performance and data integrity
-        // DB might not have FK constraints if created with migration batch 1
-        Schema::table('campaigns', function (Blueprint $table) {
-             // We can't easily modify FKs in some DBs without dropping first, 
-             // but let's ensure the type is consistent.
-             $table->unsignedBigInteger('category_id')->change();
-             $table->unsignedBigInteger('user_id')->change();
+            if (! $this->hasIndex('donations', 'donations_campaign_id_status_index')) {
+                $table->index(['campaign_id', 'status']);
+            }
         });
+    }
 
-        Schema::table('donations', function (Blueprint $table) {
-             $table->unsignedBigInteger('campaign_id')->change();
-             $table->unsignedBigInteger('donatur_id')->change();
+    /**
+     * Buang kolom donatur sisa migrasi lama. Kolom ini tidak pernah ada di
+     * 2025_09_05_010925_create_donaturs_table.php, jadi dicek satu per satu.
+     */
+    protected function dropDonaturLegacyColumns(): void
+    {
+        $legacy = array_values(array_filter(
+            ['email_verified_at', 'password', 'remember_token'],
+            fn (string $column) => Schema::hasColumn('donaturs', $column)
+        ));
+
+        if ($legacy === []) {
+            return;
+        }
+
+        Schema::table('donaturs', function (Blueprint $table) use ($legacy) {
+            $table->dropColumn($legacy);
         });
+    }
+
+    /**
+     * Check apakah sebuah index sudah ada di tabel tersebut.
+     *
+     * Menggunakan query mentah, bukan Doctrine, supaya tidak butuh doctrine/dbal.
+     */
+    protected function hasIndex(string $table, string $index): bool
+    {
+        $connection = Schema::getConnection();
+        $driver = $connection->getDriverName();
+
+        $rows = $driver === 'sqlite'
+            ? $connection->select("SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = ?", [$table])
+            : $connection->select(
+                'SELECT DISTINCT INDEX_NAME AS index_name FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',
+                [$table]
+            );
+
+        foreach ($rows as $row) {
+            $name = $row->index_name ?? $row->name ?? null;
+
+            if ($name === $index) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -49,15 +94,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('donations', function (Blueprint $table) {
-            $table->dropUnique(['invoice']);
-            $table->dropIndex(['status']);
-            $table->dropIndex(['campaign_id', 'status']);
-        });
-
-        Schema::table('donaturs', function (Blueprint $table) {
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            if ($this->hasIndex('donations', 'donations_campaign_id_status_index')) {
+                $table->dropIndex(['campaign_id', 'status']);
+            }
         });
     }
 };
