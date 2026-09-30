@@ -103,7 +103,7 @@
             {{-- Action Buttons --}}
             <div class="space-y-3 pt-2">
                 {{-- Sudah Bayar Button --}}
-                <form action="{{ route('public.donation.confirm', $donation->invoice) }}" method="POST" id="confirmForm">
+                <form action="{{ \Illuminate\Support\Facades\URL::signedRoute('public.donation.confirm', $donation->invoice) }}" method="POST" id="confirmForm">
                     @csrf
                     <button type="button" onclick="confirmPayment()"
                         class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl hover:opacity-90 transition shadow-lg shadow-emerald-500/25 text-sm flex items-center justify-center gap-2">
