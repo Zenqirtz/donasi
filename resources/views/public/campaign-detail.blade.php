@@ -53,9 +53,9 @@
             {{-- Description --}}
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                 <h2 class="text-lg font-extrabold text-slate-800 mb-4">Tentang Campaign Ini</h2>
-                <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
-                    {!! nl2br(e($campaign->description)) !!}
-                </div>
+                    <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                        {{ $campaign->description }}
+                    </p>
             </div>
 
             {{-- Recent Donors --}}
