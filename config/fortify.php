@@ -132,7 +132,8 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Registrasi publik dimatikan. Akun admin dibuat lewat seeder atau `php artisan tinker`.
+        // Features::registration(),
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
