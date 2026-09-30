@@ -7,6 +7,7 @@ use App\Models\Donation;
 use App\Models\Donatur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class DonationPublicController extends Controller
@@ -97,7 +98,7 @@ class DonationPublicController extends Controller
             ]);
         });
 
-        return redirect()->route('public.donation.payment', $donation->invoice);
+        return redirect()->to(URL::signedRoute('public.donation.payment', ['invoice' => $donation->invoice]));
     }
 
     /**
@@ -111,7 +112,7 @@ class DonationPublicController extends Controller
 
         // Jika sudah selesai, arahkan ke halaman sukses.
         if ($donation->status === Donation::STATUS_SUCCESS) {
-            return redirect()->route('public.donation.success', $donation->invoice);
+            return redirect()->to(URL::signedRoute('public.donation.success', ['invoice' => $donation->invoice]));
         }
 
         if (in_array($donation->status, ['failed', 'expired'], true)) {
@@ -140,7 +141,7 @@ class DonationPublicController extends Controller
             ->firstOrFail();
 
         if ($donation->status === Donation::STATUS_SUCCESS) {
-            return redirect()->route('public.donation.success', $donation->invoice);
+            return redirect()->to(URL::signedRoute('public.donation.success', ['invoice' => $donation->invoice]));
         }
 
         if ($donation->status !== 'pending') {
@@ -164,7 +165,7 @@ class DonationPublicController extends Controller
             $donation->save();
         });
 
-        return redirect()->route('public.donation.success', $donation->invoice)
+        return redirect()->to(URL::signedRoute('public.donation.success', ['invoice' => $donation->invoice]))
             ->with('success', 'Alhamdulillah! Pembayaran donasi Anda telah berhasil dikonfirmasi.');
     }
 
