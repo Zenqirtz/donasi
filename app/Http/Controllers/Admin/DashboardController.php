@@ -1,17 +1,14 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
-
 
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Models\Donatur;
 
-
 class DashboardController extends Controller
-{    
+{
     /**
      * index
      *
@@ -19,19 +16,19 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        //donatur
+        // donatur
         $donaturs = Donatur::count();
 
-        //campaign
+        // campaign
         $campaigns = Campaign::count();
 
-        //donations total success
+        // donations total success
         $donations = Donation::where('status', 'success')->sum('amount');
 
-        //donations pending count
+        // donations pending count
         $donationsPending = Donation::where('status', 'pending')->count();
 
-        //recent donations
+        // recent donations
         $recentDonations = Donation::with(['campaign', 'donatur'])
             ->latest()
             ->take(5)

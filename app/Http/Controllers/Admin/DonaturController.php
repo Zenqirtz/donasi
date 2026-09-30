@@ -13,13 +13,13 @@ class DonaturController extends Controller
     public function index()
     {
         $donaturs = Donatur::when(request()->filled('q'), function ($query) {
-                $search = escapeLike(request()->q);
+            $search = escapeLike(request()->q);
 
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%');
-                });
-            })
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%');
+            });
+        })
             ->latest()
             ->paginate(10);
 
