@@ -103,6 +103,9 @@ return new class extends Migration
         });
 
         Schema::table('sliders', function (Blueprint $table) {
+            // index unique pada kolom order ikut dilepas lebih dulu, MySQL
+            // tidak bisa drop kolom selama masih ada constraint yang memakainya.
+            $table->dropUnique(['order']);
             $table->dropColumn(['is_active', 'order']);
         });
     }
