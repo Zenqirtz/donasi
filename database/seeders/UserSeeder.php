@@ -2,23 +2,27 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
 
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed the initial admin account.
+     *
+     * Password diambil dari env ADMIN_PASSWORD, default "password" hanya untuk
+     * development. Jangan pakai seeder ini di production tanpa mengganti nilainya.
      */
     public function run(): void
     {
-        DB::table('users')->insert([
-            'name' => 'Muhammad Arga Pradana',
-            'email' => 'argad5033@gmail.com',
-            'password' => Hash::make('password'),
-        ]);
-    }   
-} 
+        User::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@example.com')],
+            [
+                'name' => env('ADMIN_NAME', 'Administrator'),
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
+                'is_admin' => true,
+            ]
+        );
+    }
+}
