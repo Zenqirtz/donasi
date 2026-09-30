@@ -64,8 +64,6 @@ class Donation extends Model
      * Kolom current_donation di schema(unsigned) tidak bisa menerima nilai
      * negatif, jadi decrement di-clamp ke nol. Campaign yang sudah di-soft-delete
      * sengaja dilewati karena relasi campaign() memfilter deleted_at.
-     *
-     * @param  int  $delta
      */
     public function syncCampaignTotal(int $delta): void
     {

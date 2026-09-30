@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Campaign extends Model
 {
@@ -28,7 +28,7 @@ class Campaign extends Model
 
     /**
      * category
-     * 
+     *
      * @return void
      */
     public function category()
@@ -38,7 +38,7 @@ class Campaign extends Model
 
     /**
      * user
-     * 
+     *
      * @return void
      */
     public function user()
@@ -48,7 +48,7 @@ class Campaign extends Model
 
     /**
      * donations
-     * 
+     *
      * @return void
      */
     public function donations()
@@ -68,7 +68,7 @@ class Campaign extends Model
 
     /**
      * Check if campaign has expired
-     * 
+     *
      * @return bool
      */
     public function isExpired()
@@ -102,13 +102,11 @@ class Campaign extends Model
 
     /**
      * image
-     *
-     * @return Attribute
      */
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => asset('/storage/campaigns/' . $value),
+            get: fn ($value) => asset('/storage/campaigns/'.$value),
         );
     }
 }
