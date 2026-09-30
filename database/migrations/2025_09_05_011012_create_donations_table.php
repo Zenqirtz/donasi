@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('amount');
             $table->text('pray')->nullable();
             $table->string('snap_token')->nullable();
-            $table->enum('status', array('pending', 'success', 'expired', 'failed'))->index();
+            $table->enum('status', ['pending', 'success', 'expired', 'failed'])->index();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
 

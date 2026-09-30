@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Categories: Add softDeletes if missing
-        if (!Schema::hasColumn('categories', 'deleted_at')) {
+        if (! Schema::hasColumn('categories', 'deleted_at')) {
             Schema::table('categories', function (Blueprint $table) {
                 $table->softDeletes();
             });
@@ -21,16 +21,16 @@ return new class extends Migration
 
         // 2. Campaigns: Add current_donation, softDeletes, change max_date to dateTime if date
         Schema::table('campaigns', function (Blueprint $table) {
-            if (!Schema::hasColumn('campaigns', 'current_donation')) {
+            if (! Schema::hasColumn('campaigns', 'current_donation')) {
                 $table->unsignedBigInteger('current_donation')->default(0)->after('target_donation');
             }
-            if (!Schema::hasColumn('campaigns', 'deleted_at')) {
+            if (! Schema::hasColumn('campaigns', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
 
         // 3. Donaturs: Add softDeletes
-        if (!Schema::hasColumn('donaturs', 'deleted_at')) {
+        if (! Schema::hasColumn('donaturs', 'deleted_at')) {
             Schema::table('donaturs', function (Blueprint $table) {
                 $table->softDeletes();
             });
@@ -38,17 +38,17 @@ return new class extends Migration
 
         // 4. Donations: Add paid_at, index on status and composite index
         Schema::table('donations', function (Blueprint $table) {
-            if (!Schema::hasColumn('donations', 'paid_at')) {
+            if (! Schema::hasColumn('donations', 'paid_at')) {
                 $table->timestamp('paid_at')->nullable()->after('status');
             }
         });
 
         // 5. Sliders: Add is_active, order with unique constraint
         Schema::table('sliders', function (Blueprint $table) {
-            if (!Schema::hasColumn('sliders', 'is_active')) {
+            if (! Schema::hasColumn('sliders', 'is_active')) {
                 $table->boolean('is_active')->default(true)->after('link');
             }
-            if (!Schema::hasColumn('sliders', 'order')) {
+            if (! Schema::hasColumn('sliders', 'order')) {
                 $table->integer('order')->default(0)->after('is_active');
             }
         });
