@@ -77,6 +77,30 @@ class Campaign extends Model
     }
 
     /**
+     * Sisa target yang masih boleh terkumpul.
+     */
+    public function remainingTarget(): int
+    {
+        return max(0, (int) $this->target_donation - (int) $this->current_donation);
+    }
+
+    /**
+     * Apakah campaign sudah mencapai target donasi.
+     */
+    public function isFullyFunded(): bool
+    {
+        return (int) $this->current_donation >= (int) $this->target_donation;
+    }
+
+    /**
+     * Apakah campaign masih menerima donasi baru.
+     */
+    public function acceptsDonation(): bool
+    {
+        return ! $this->isExpired() && ! $this->isFullyFunded();
+    }
+
+    /**
      * image
      *
      * @return Attribute
