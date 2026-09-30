@@ -1,164 +1,126 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
-
-use App\Models\Category;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     /**
      * index
-     *
-     * @return void
      */
     public function index()
     {
         $categories = Category::paginate(10);
+
         return view('admin.category.index', compact('categories'));
     }
-    
+
     /**
      * create
-     *
-     * @return void
      */
     public function create()
     {
         return view('admin.category.create');
     }
-    
+
     /**
      * store
-     *
-     * @param  mixed $request
-     * @return void
      */
     public function store(Request $request)
     {
-       $this->validate($request, [
-           'image' => 'required|image|mimes:jpeg,jpg,png|max:2000',
-           'name'  => 'required|unique:categories' 
-       ]); 
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,jpg,png|max:2000',
+            'name' => 'required|string|max:255|unique:categories,name',
+        ]);
 
+        $image = $request->file('image');
+        $image->storeAs('public/categories', $image->hashName());
 
-       //upload image
-       $image = $request->file('image');
-       $image->storeAs('public/categories', $image->hashName());
+        $category = Category::create([
+            'image' => $image->hashName(),
+            'name' => $validated['name'],
+            'slug' => $this->uniqueSlug($validated['name']),
+        ]);
 
-
-       //save to DB
-       $category = Category::create([
-           'image'  => $image->hashName(),
-           'name'   => $request->name,
-           'slug'   => Str::slug($request->name, '-')
-       ]);
-
-
-       if($category){
-            //redirect dengan pesan sukses
-            return redirect()->route('admin.category.index')->with(['success' => 'Data Berhasil Disimpan!']);
-        }else{
-            //redirect dengan pesan error
-            return redirect()->route('admin.category.index')->with(['error' => 'Data Gagal Disimpan!']);
-        }
+        return redirect()->route('admin.category.index')
+            ->with($category ? ['success' => 'Data Berhasil Disimpan!'] : ['error' => 'Data Gagal Disimpan!']);
     }
-    
+
     /**
      * edit
-     *
-     * @param  mixed $request
-     * @param  mixed $category
-     * @return void
      */
     public function edit(Category $category)
     {
         return view('admin.category.edit', compact('category'));
     }
-    
+
     /**
      * update
-     *
-     * @param  mixed $request
-     * @param  mixed $category
-     * @return void
      */
     public function update(Request $request, Category $category)
     {
-        $this->validate($request, [
-            'name'  => 'required|unique:categories,name,'.$category->id 
-        ]); 
+        $validated = $request->validate([
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2000',
+            'name' => 'required|string|max:255|unique:categories,name,'.$category->id,
+        ]);
 
+        $attributes = [
+            'name' => $validated['name'],
+            'slug' => $this->uniqueSlug($validated['name'], $category->id),
+        ];
 
-        //check jika image kosong
-        if($request->file('image') == '') {
-            
-            //update data tanpa image
-            $category = Category::findOrFail($category->id);
-            $category->update([
-                'name'   => $request->name,
-                'slug'   => Str::slug($request->name, '-')
-            ]);
+        if ($request->hasFile('image')) {
+            Storage::disk('local')->delete('public/categories/'.basename($category->getRawOriginal('image')));
 
-
-        } else {
-
-
-            //hapus image lama
-            Storage::disk('local')->delete('public/categories/'.basename($category->image));
-
-
-            //upload image baru
             $image = $request->file('image');
             $image->storeAs('public/categories', $image->hashName());
 
-
-            //update dengan image baru
-            $category = Category::findOrFail($category->id);
-            $category->update([
-                'image'  => $image->hashName(),
-                'name'   => $request->name,
-                'slug'   => Str::slug($request->name, '-')
-            ]);
+            $attributes['image'] = $image->hashName();
         }
 
+        $category->update($attributes);
 
-        if($category){
-            //redirect dengan pesan sukses
-            return redirect()->route('admin.category.index')->with(['success' => 'Data Berhasil Diupdate!']);
-        }else{
-            //redirect dengan pesan error
-            return redirect()->route('admin.category.index')->with(['error' => 'Data Gagal Diupdate!']);
-        }
+        return redirect()->route('admin.category.index')
+            ->with(['success' => 'Data Berhasil Diupdate!']);
     }
-    
+
     /**
      * destroy
-     *
-     * @param  mixed $id
-     * @return void
      */
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
-        Storage::disk('local')->delete('public/categories/'.basename($category->image));
+
+        Storage::disk('local')->delete('public/categories/'.basename($category->getRawOriginal('image')));
         $category->delete();
 
+        return response()->json([
+            'status' => 'success',
+        ]);
+    }
 
-        if($category){
-            return response()->json([
-                'status' => 'success'
-            ]);
-        }else{
-            return response()->json([
-                'status' => 'error'
-            ]);
+    /**
+     * Slug unik dari nama, ditambahkan sufiks bila slug sudah dipakai.
+     */
+    protected function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name, '-') ?: 'category';
+        $slug = $base;
+        $suffix = 1;
+
+        while (Category::withTrashed()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
+            $slug = $base.'-'.(++$suffix);
         }
+
+        return $slug;
     }
 }
